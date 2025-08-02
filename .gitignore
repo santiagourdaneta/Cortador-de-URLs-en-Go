@@ -1,0 +1,15 @@
+# Archivos de Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.log
+/url-shortener
+
+# Editor de VS Code
+.vscode/
+
+# Archivos temporales o de caché
+.DS_Store
+Thumbs.db

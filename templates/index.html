@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cortador de URLs Mágico | Acorta tus enlaces al instante</title>
+    
+    <meta name="description" content="Acorta y comparte tus enlaces de forma rápida y sencilla.">
+    <meta property="og:title" content="Cortador de URLs Mágico">
+    <meta property="og:description" content="Acorta tus enlaces largos para compartirlos fácilmente en cualquier lugar.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://localhost:8080">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+</head>
+<body>
+    <section class="hero is-fullheight">
+        <div class="hero-body">
+            <div class="container has-text-centered">
+                <div class="column is-4 is-offset-4">
+                    <h1 class="title has-text-grey">Cortador de URLs Mágico</h1>
+                    <p class="subtitle has-text-grey">Acorta y comparte tus enlaces fácilmente</p>
+                    <div class="box">
+                        <form id="shorten-form">
+                            <div class="field">
+                                <div class="control">
+                                    <input class="input is-large" type="url" name="url" id="urlInput" placeholder="Pega tu URL aquí" required aria-label="URL a acortar">
+                                </div>
+                            </div>
+                            <button class="button is-block is-info is-large is-fullwidth" type="submit">Acortar</button>
+                        </form>
+                    </div>
+                    
+                    <div id="result-container" class="mt-4">
+                        </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <script>
+        // Lógica de JavaScript para evitar la recarga de la página
+        document.getElementById('shorten-form').addEventListener('submit', async function(event) {
+            event.preventDefault(); // Evita que la página se recargue
+
+            const url = document.getElementById('urlInput').value;
+            const resultContainer = document.getElementById('result-container');
+
+            try {
+                const response = await fetch('/shorten', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ url: url })
+                });
+
+                const data = await response.json(); // Ahora el servidor enviará JSON
+
+                // Limpiar mensajes anteriores
+                resultContainer.innerHTML = '';
+
+                if (response.ok) {
+                    const html = `
+                        <div class="notification is-success">
+                            <p>¡Tu URL ha sido acortada!</p>
+                            <p><a href="${data.shortenedURL}" target="_blank">${data.shortenedURL}</a></p>
+                            <div class="buttons is-centered mt-3">
+                                <button class="button is-small is-light" onclick="copyToClipboard('${data.shortenedURL}')">Copiar</button>
+                            </div>
+                        </div>
+                    `;
+                    resultContainer.innerHTML = html;
+                } else {
+                    const html = `<div class="notification is-danger"><p>${data.error}</p></div>`;
+                    resultContainer.innerHTML = html;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                resultContainer.innerHTML = `<div class="notification is-danger"><p>Ocurrió un error inesperado.</p></div>`;
+            }
+        });
+
+        // Función para copiar la URL al portapapeles
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('¡URL copiada al portapapeles!');
+            }).catch(err => {
+                console.error('Error al copiar:', err);
+            });
+        }
+    </script>
+</body>
+</html>
